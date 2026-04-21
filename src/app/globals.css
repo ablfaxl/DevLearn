@@ -1,2 +1,37 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /**
+   * Single dark palette for the whole app (no light theme).
+   * Use `bg-(--lms-bg)`, `bg-(--lms-surface)`, `text-(--lms-accent)` in Tailwind v4 where supported,
+   * or `bg-[var(--lms-bg)]` etc.
+   */
+  :root {
+    --lms-bg: #0b0b0b;
+    --lms-surface: #1a1a1a;
+    --lms-surface-elevated: #222222;
+    --lms-accent: #f38e43;
+    --lms-accent-hover: #ff9f57;
+    --lms-border: rgba(255, 255, 255, 0.08);
+    --lms-text: #fafafa;
+    --lms-text-muted: #a1a1aa;
+    --lms-text-subtle: #71717a;
+  }
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+    background-color: var(--lms-bg);
+    color: var(--lms-text);
+  }
+  body {
+    background-color: var(--lms-bg);
+    color: var(--lms-text);
+  }
+  ::selection {
+    background-color: rgba(243, 142, 67, 0.32);
+    color: var(--lms-bg);
+  }
+}

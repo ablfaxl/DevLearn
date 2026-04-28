@@ -9,9 +9,9 @@ const CourseLearnWorkspace = dynamic(
   () => import("./course-learn-workspace").then((m) => m.CourseLearnWorkspace),
   {
     loading: () => (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-sm text-(--lms-text-muted)">
         <div
-          className="size-9 animate-spin rounded-full border-2 border-zinc-200 border-t-fuchsia-600 dark:border-zinc-700 dark:border-t-fuchsia-400"
+          className="size-9 animate-spin rounded-full border-2 border-(--lms-border) border-t-(--lms-accent)"
           aria-hidden
         />
         Loading classroom…
@@ -39,13 +39,13 @@ export default async function LearnCoursePage({ params }: PageProps) {
   if (!course) notFound();
 
   return (
-    <div className="min-h-[calc(100dvh-4rem)] bg-zinc-50 dark:bg-zinc-950">
-      <div className="border-b border-zinc-200/80 bg-white/90 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/90">
+    <div className="min-h-[calc(100dvh-4rem)] bg-(--lms-bg)">
+      <div className="border-b border-(--lms-border) bg-(--lms-surface) px-4 py-3">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
-          <Link href={ROUTES.LEARN} className="text-sm font-medium text-fuchsia-700 hover:underline dark:text-fuchsia-400">
+          <Link href={ROUTES.LEARN} className="text-sm font-medium text-(--lms-accent) hover:underline">
             ← My learning
           </Link>
-          <Link href={ROUTES.MESSAGES} className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400">
+          <Link href={ROUTES.MESSAGES} className="text-sm text-(--lms-text-muted) hover:text-(--lms-text)">
             Messages
           </Link>
         </div>

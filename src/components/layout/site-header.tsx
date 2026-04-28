@@ -187,7 +187,7 @@ export function SiteHeader() {
                 Sign up
               </Link>
               <Link
-                href={ROUTES.ADMIN_LOGIN}
+                href={ROUTES.LOGIN}
                 className="inline-flex h-9 items-center rounded-lg bg-[var(--lms-accent)] px-4 text-sm font-semibold text-[#1a0f08] shadow-sm transition hover:brightness-110"
               >
                 Log in
@@ -277,7 +277,7 @@ export function SiteHeader() {
                   Create account
                 </Link>
                 <Link
-                  href={ROUTES.ADMIN_LOGIN}
+                  href={ROUTES.LOGIN}
                   className="rounded-lg px-3 py-2 text-sm font-semibold text-[var(--lms-accent)]"
                   onClick={close}
                 >

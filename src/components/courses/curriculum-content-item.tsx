@@ -92,11 +92,14 @@ function MediaBlockHeader({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+    <div className="flex items-center gap-2 text-sm font-semibold text-(--lms-text) dark:text-(--lms-text)/50">
       {contentType === "video" ? (
-        <Film className="size-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400" aria-hidden />
+        <Film className="size-4 shrink-0 text-(--lms-text) dark:text-(--lms-text)/50" aria-hidden />
       ) : (
-        <Headphones className="size-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400" aria-hidden />
+        <Headphones
+          className="size-4 shrink-0 text-(--lms-text) dark:text-(--lms-text)/50"
+          aria-hidden
+        />
       )}
       <span>{title}</span>
     </div>
@@ -105,8 +108,11 @@ function MediaBlockHeader({
 
 function DocumentBlockHeader({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-      <FileText className="size-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400" aria-hidden />
+    <div className="flex items-center gap-2 text-sm font-semibold text-(--lms-text) dark:text-(--lms-text)/50">
+      <FileText
+        className="size-4 shrink-0 text-(--lms-text) dark:text-(--lms-text)/50"
+        aria-hidden
+      />
       <span>{title}</span>
     </div>
   );
@@ -114,7 +120,7 @@ function DocumentBlockHeader({ title }: { title: string }) {
 
 function EmbeddedHostedVideo({ title, embedSrc }: { title: string; embedSrc: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl ring-1 ring-fuchsia-500/15">
+    <div className="overflow-hidden rounded-2xl border border-(--lms-border)/10 bg-(--lms-surface)/950 shadow-2xl ring-1 ring-(--lms-accent)/15">
       <div className="aspect-video w-full bg-black">
         <iframe
           title={title}
@@ -135,7 +141,7 @@ function DocumentAssetFrame({ title, src }: { title: string; src: string }) {
   return (
     <div className="space-y-3">
       <DocumentBlockHeader title={title} />
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-xl ring-1 ring-fuchsia-500/10">
+      <div className="overflow-hidden rounded-2xl border border-(--lms-border)/10 bg-(--lms-surface)/950 shadow-xl ring-1 ring-(--lms-accent)/10">
         <iframe
           title={title}
           src={src}
@@ -147,7 +153,7 @@ function DocumentAssetFrame({ title, src }: { title: string; src: string }) {
       <p className="text-sm">
         <Link
           href={src}
-          className="font-medium text-fuchsia-700 underline-offset-2 hover:underline dark:text-fuchsia-400"
+          className="font-medium text-(--lms-accent) underline-offset-2 hover:underline dark:text-(--lms-accent)/40"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -221,7 +227,7 @@ function CurriculumContentItemInner({
 
   const docAssetUrl =
     contentType === "document"
-      ? (fileUrl && fileUrl.trim() !== "" ? fileUrl.trim() : null) ?? urlFromContent
+      ? ((fileUrl && fileUrl.trim() !== "" ? fileUrl.trim() : null) ?? urlFromContent)
       : null;
 
   if (contentType === "document" && docAssetUrl) {
@@ -236,17 +242,17 @@ function CurriculumContentItemInner({
     <div className="space-y-2">
       <div className="flex gap-2 text-sm text-zinc-800 dark:text-zinc-200">
         <FileText
-          className="mt-0.5 size-4 shrink-0 text-fuchsia-600/90 dark:text-fuchsia-400"
+          className="mt-0.5 size-4 shrink-0 text-(--lms-text)/90 dark:text-(--lms-text)/40"
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <span className="font-semibold text-zinc-900 dark:text-zinc-100">{title}</span>
+          <span className="font-semibold text-(--lms-text) dark:text-(--lms-text)/50">{title}</span>
           {trimmedBody ? (
             contentType === "text" && bareHttpBody ? (
               <p className="mt-2 break-all text-sm">
                 <Link
                   href={trimmedBody}
-                  className="font-medium text-fuchsia-700 underline-offset-2 hover:underline dark:text-fuchsia-400"
+                  className="font-medium text-(--lms-accent) underline-offset-2 hover:underline dark:text-(--lms-accent)/40"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -257,7 +263,7 @@ function CurriculumContentItemInner({
               /* Trusted rich text from course authors */
               <div className={htmlBodyClass} dangerouslySetInnerHTML={{ __html: bodyText }} />
             ) : (
-              <p className="mt-2 whitespace-pre-wrap rounded-lg bg-zinc-50/90 p-3 text-sm leading-relaxed text-zinc-700 ring-1 ring-zinc-950/5 dark:bg-zinc-900/60 dark:text-zinc-300 dark:ring-zinc-700/50">
+              <p className="mt-2 whitespace-pre-wrap rounded-lg bg-(--lms-surface) p-3 text-sm leading-relaxed text-(--lms-text) ring-1 ring-(--lms-border)/5 dark:bg-(--lms-surface)/60 dark:text-(--lms-text)/30 dark:ring-(--lms-border)/50">
                 {bodyText}
               </p>
             )
@@ -266,7 +272,7 @@ function CurriculumContentItemInner({
             <p className="mt-2">
               <Link
                 href={fileUrl}
-                className="font-medium text-fuchsia-700 underline-offset-2 hover:underline dark:text-fuchsia-400"
+                className="font-medium text-(--lms-accent) underline-offset-2 hover:underline dark:text-(--lms-accent)/40"
                 target="_blank"
                 rel="noopener noreferrer"
               >

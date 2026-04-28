@@ -25,66 +25,79 @@ export function CourseCurriculumAccordion({
   }
 
   return (
-    <div className="divide-y divide-zinc-200 rounded-2xl border border-zinc-200/90 bg-white shadow-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/50">
+    <div className="overflow-hidden rounded-2xl border border-(--lms-border) bg-(--lms-surface) shadow-xl shadow-black/20 ring-1 ring-black/15">
       {modules.map((mod, mi) => {
         const expanded = open.has(mod.id);
         return (
-          <div key={mod.id} className="overflow-hidden">
+          <div key={mod.id} className="border-b border-(--lms-border) last:border-b-0">
             <button
               type="button"
               onClick={() => toggle(mod.id)}
-              className="flex w-full items-start gap-3 bg-zinc-50/50 px-4 py-4 text-left transition hover:bg-zinc-100/80 dark:bg-zinc-900/30 dark:hover:bg-zinc-800/50"
+              className="group flex w-full items-start gap-3 bg-(--lms-surface) px-4 py-4 text-left transition-colors duration-200 hover:bg-(--lms-surface-elevated)"
               aria-expanded={expanded}
             >
               <span
-                className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 transition dark:border-zinc-700 dark:bg-zinc-950 ${
-                  expanded ? "rotate-180" : ""
+                className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border border-(--lms-border) bg-black/15 text-(--lms-text-muted) transition duration-300 ${
+                  expanded ? "rotate-180 border-(--lms-accent)/45 text-(--lms-accent)" : "group-hover:text-(--lms-text)"
                 }`}
               >
                 <ChevronDown className="size-4" aria-hidden />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-fuchsia-700 dark:text-fuchsia-400">
+                <span className="text-xs font-semibold uppercase tracking-wide text-(--lms-accent)">
                   Section {mi + 1}
                 </span>
-                <span className="mt-0.5 block text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                <span className="mt-0.5 block text-base font-semibold text-(--lms-text)">
                   {mod.title}
                 </span>
                 {mod.description ? (
-                  <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">{mod.description}</span>
+                  <span className="mt-1 block text-sm leading-relaxed text-(--lms-text-muted)">
+                    {mod.description}
+                  </span>
                 ) : null}
               </span>
             </button>
-            {expanded ? (
-              <div className="border-t border-zinc-100 bg-white px-4 pb-4 pt-2 dark:border-zinc-800 dark:bg-zinc-950/40">
+
+            <div
+              className={`grid transition-all duration-300 ease-out ${
+                expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-(--lms-border) bg-(--lms-surface-elevated) px-4 pb-4 pt-2">
                 <ol className="space-y-3">
                   {(mod.lessons ?? []).map((lesson, li) => (
                     <li
                       key={lesson.id}
-                      className="rounded-xl border border-zinc-100 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/60"
+                      className="rounded-xl border border-(--lms-border) bg-(--lms-surface) p-4 shadow-sm shadow-black/20"
                     >
                       <div className="flex items-start gap-3">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-fuchsia-700 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-950 dark:text-fuchsia-400 dark:ring-zinc-700">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black/20 text-xs font-bold text-(--lms-accent) shadow-sm ring-1 ring-(--lms-border)">
                           {li + 1}
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">{lesson.title}</h4>
-                            <span className="rounded-md bg-zinc-200/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                            <h4 className="font-semibold text-(--lms-text)">
+                              {lesson.title}
+                            </h4>
+                            <span className="rounded-md border border-(--lms-border) bg-black/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-(--lms-text-muted)">
                               {lesson.content_type}
                             </span>
                           </div>
-                          <ul className="mt-3 divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                          <ul className="mt-3 divide-y divide-(--lms-border)">
                             {(lesson.contents ?? []).map((c) => (
                               <li key={c.id} className="py-3 first:pt-0">
                                 {outlineOnly ? (
-                                  <div className="text-sm text-zinc-700 dark:text-zinc-300">
-                                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">{c.title}</span>
-                                    <span className="ml-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                                  <div className="text-sm text-(--lms-text-muted)">
+                                    <span className="font-semibold text-(--lms-text)">
+                                      {c.title}
+                                    </span>
+                                    <span className="ml-2 text-xs font-medium uppercase tracking-wide text-(--lms-text-subtle)">
                                       {c.content_type}
                                     </span>
-                                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                      Full text and media are in the classroom after you sign in and enroll.
+                                    <p className="mt-1 text-xs text-(--lms-text-subtle)">
+                                      Full text and media are in the classroom after you sign in and
+                                      enroll.
                                     </p>
                                   </div>
                                 ) : (
@@ -103,8 +116,9 @@ export function CourseCurriculumAccordion({
                     </li>
                   ))}
                 </ol>
+                </div>
               </div>
-            ) : null}
+            </div>
           </div>
         );
       })}

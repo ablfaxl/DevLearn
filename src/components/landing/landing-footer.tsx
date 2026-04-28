@@ -11,26 +11,11 @@ const columns = [
     ],
   },
   {
-    title: "Teach",
+    title: "Explore",
     links: [
-      { href: ROUTES.STUDIO, label: "Instructor studio" },
-      { href: ROUTES.ADMIN_LOGIN, label: "Admin sign in" },
+      { href: ROUTES.COURSES, label: "Courses" },
       { href: ROUTES.MESSAGES, label: "Messages" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { href: "/about", label: "About" },
-      { href: "/blog", label: "Blog" },
-      { href: "/contact", label: "Contact" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { href: "/privacy", label: "Privacy" },
-      { href: "/terms", label: "Terms" },
+      { href: ROUTES.NOTIFICATIONS, label: "Notifications" },
     ],
   },
 ];
@@ -46,7 +31,8 @@ export function LandingFooter() {
           <div className="lg:col-span-2">
             <p className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">{name}</p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-              A focused learning experience: catalog, classroom, and instructor tools in one cohesive product surface.
+              A focused learning experience: catalog, classroom, and instructor tools in one
+              cohesive product surface.
             </p>
           </div>
           {columns.map((col) => (
@@ -70,8 +56,12 @@ export function LandingFooter() {
           ))}
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-500 sm:flex-row">
-          <p>© {year} {name}. All rights reserved.</p>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">Made for production LMS deployments.</p>
+          <p>
+            © {year} {name}. All rights reserved.
+          </p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            Made for production LMS deployments.
+          </p>
         </div>
       </div>
     </footer>

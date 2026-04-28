@@ -8,6 +8,8 @@ export const ROUTES = {
   LEARN: "/learn",
   learnCourse: (id: number | string) => `/learn/courses/${id}`,
   ADMIN_LOGIN: "/admin/login",
+  LOGIN: "/login",
+  INSTRUCTOR_LOGIN: "/instructor/login",
   ADMIN_OVERVIEW: "/admin/overview",
   ADMIN_COURSES: "/admin/courses",
   adminCourse: (id: number | string) => `/admin/courses/${id}`,

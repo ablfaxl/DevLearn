@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const FALLBACK_HERO_IMAGE = "/img/docker_thumnail.webp";
+const FALLBACK_HERO_IMAGE = "/img/placeholder.png";
 
 type PageProps = {
   params: Promise<{ courseId: string }>;
@@ -78,9 +78,9 @@ export default async function CourseDetailPage({ params }: PageProps) {
             aria-hidden
           />
           <Link
-            href={ROUTES.learnCourse(course.id)}
+            href="#course-enroll"
             className="absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#1a0f08] shadow-xl ring-4 ring-black/30 transition hover:scale-105 hover:bg-white"
-            aria-label="Preview in classroom"
+            aria-label="Enroll to unlock classroom"
           >
             <Play className="ms-0.5 size-7 fill-current" aria-hidden />
           </Link>
@@ -154,7 +154,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
               href={ROUTES.COURSES}
               className="inline-flex text-sm font-medium text-[var(--lms-accent)] hover:underline"
             >
-              ← Back to all courses
+              Courses
             </Link>
 
             <section>
@@ -175,10 +175,10 @@ export default async function CourseDetailPage({ params }: PageProps) {
                   </p>
                 </div>
                 <Link
-                  href={ROUTES.learnCourse(course.id)}
-                  className="inline-flex items-center rounded-full bg-[var(--lms-accent)] px-4 py-2 text-sm font-semibold text-[#1a0f08] shadow-md transition hover:brightness-110"
+                  href="#course-enroll"
+                  className="inline-flex items-center rounded-full bg-(--lms-accent) px-4 py-2 text-sm font-semibold text-(--lms-text) shadow-md transition hover:brightness-110"
                 >
-                  Go to classroom
+                  Enroll to unlock classroom
                 </Link>
               </div>
               <p className="mb-4 rounded-2xl border border-amber-900/40 bg-amber-950/25 px-4 py-3 text-sm leading-relaxed text-amber-100/90">
@@ -205,9 +205,6 @@ export default async function CourseDetailPage({ params }: PageProps) {
                 <p className="mt-2 text-4xl font-extrabold tracking-tight text-white">
                   {formatPrice(price)}
                 </p>
-                <p className="mt-2 text-xs text-zinc-500">
-                  Enroll to unlock lessons in the classroom when your API allows it.
-                </p>
               </div>
               <div className="px-6 pb-6 pt-2">
                 <CourseEnrollPanel courseId={course.id} />
@@ -232,7 +229,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
           href={ROUTES.COURSES}
           className="flex flex-1 items-center justify-center rounded-2xl border-2 border-[var(--lms-accent)] bg-transparent py-3.5 text-sm font-bold text-[var(--lms-accent)]"
         >
-          Explore
+          Courses
         </Link>
         <Link
           href="#course-enroll"

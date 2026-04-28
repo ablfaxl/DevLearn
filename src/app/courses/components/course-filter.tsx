@@ -63,9 +63,11 @@ export default function CourseFilter({
       className={`flex w-full min-w-0 flex-col gap-5 border-0 p-0 ${disabled ? "opacity-55" : ""}`}
     >
       <legend className="sr-only">Course filters</legend>
-      <div className="flex items-start justify-between gap-3 border-b border-zinc-100 pb-3 dark:border-zinc-800">
+      <div className="flex items-start justify-between gap-3 border-b border-(--lms-border) pb-3 dark:border-(--lms-border)">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Refine</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Refine
+          </p>
           <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">Narrow results</p>
         </div>
         {secondaryActive > 0 ? (
@@ -89,10 +91,10 @@ export default function CourseFilter({
       </SearchField.Root>
 
       <div className="space-y-2">
-        <Label.Root className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <Label.Root className="text-xs mt-4 mb-2 font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           Sort
         </Label.Root>
-        <div className="flex flex-col gap-2" role="group" aria-label="Sort courses">
+        <div className="flex flex-col gap-2 mt-4" role="group" aria-label="Sort courses">
           {SORT_OPTIONS.map((opt) => (
             <Button
               key={opt.id}
@@ -107,7 +109,7 @@ export default function CourseFilter({
         </div>
       </div>
 
-      <Separator.Root className="bg-zinc-200 dark:bg-zinc-700" />
+      <Separator.Root className="bg-(--lms-separator)" />
 
       <div className="space-y-3">
         <Label.Root className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
@@ -121,42 +123,44 @@ export default function CourseFilter({
               category: key === "all" ? null : String(key),
             })
           }
-            className="grid gap-2"
+          className="grid gap-2"
+        >
+          <Radio.Root
+            value="all"
+            className="flex items-start gap-3 rounded-lg border border-(--lms-border) bg-(--lms-surface) p-2.5 data-[selected]:border-(--lms-accent) data-[selected]:bg-white data-[selected]:ring-1 data-[selected]:ring-(--lms-accent)/35 dark:border-(--lms-border) dark:bg-(--lms-surface-elevated) dark:data-[selected]:border-(--lms-accent-muted) dark:data-[selected]:bg-(--lms-surface-elevated) dark:data-[selected]:ring-(--lms-accent-muted)/40"
           >
+            <Radio.Control className="mt-0.5">
+              <Radio.Indicator />
+            </Radio.Control>
+            <Radio.Content className="text-sm">
+              <span className="font-medium text-zinc-900 dark:text-zinc-100">All topics</span>
+            </Radio.Content>
+          </Radio.Root>
+          {categories.map((cat) => (
             <Radio.Root
-              value="all"
-              className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 p-2.5 data-[selected]:border-fuchsia-300 data-[selected]:bg-white data-[selected]:ring-1 data-[selected]:ring-fuchsia-100 dark:border-zinc-700 dark:bg-zinc-900/50 dark:data-[selected]:border-fuchsia-700 dark:data-[selected]:bg-zinc-900 dark:data-[selected]:ring-fuchsia-900/40"
+              key={cat}
+              value={cat}
+              className="flex items-start gap-3 rounded-lg border border-(--lms-border) bg-(--lms-surface) p-2.5 data-[selected]:border-(--lms-accent) data-[selected]:bg-white data-[selected]:ring-1 data-[selected]:ring-(--lms-accent)/35 dark:border-(--lms-border) dark:bg-(--lms-surface-elevated) dark:data-[selected]:border-(--lms-accent-muted) dark:data-[selected]:bg-(--lms-surface-elevated) dark:data-[selected]:ring-(--lms-accent-muted)/40"
             >
               <Radio.Control className="mt-0.5">
                 <Radio.Indicator />
               </Radio.Control>
-              <Radio.Content className="text-sm">
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">All topics</span>
+              <Radio.Content className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {cat}
               </Radio.Content>
-            </Radio.Root>
-            {categories.map((cat) => (
-              <Radio.Root
-                key={cat}
-                value={cat}
-                className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 p-2.5 data-[selected]:border-fuchsia-300 data-[selected]:bg-white data-[selected]:ring-1 data-[selected]:ring-fuchsia-100 dark:border-zinc-700 dark:bg-zinc-900/50 dark:data-[selected]:border-fuchsia-700 dark:data-[selected]:bg-zinc-900 dark:data-[selected]:ring-fuchsia-900/40"
-              >
-                <Radio.Control className="mt-0.5">
-                  <Radio.Indicator />
-                </Radio.Control>
-                <Radio.Content className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{cat}</Radio.Content>
             </Radio.Root>
           ))}
         </RadioGroup.Root>
       </div>
 
-      <Separator.Root className="bg-zinc-200 dark:bg-zinc-700" />
+      <Separator.Root className="bg-(--lms-separator)" />
 
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           <Label.Root className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Max price
           </Label.Root>
-          <span className="text-sm font-semibold tabular-nums text-fuchsia-800 dark:text-fuchsia-300">
+          <span className="text-sm font-semibold tabular-nums text-(--lms-accent) dark:text-(--lms-accent-muted)">
             {formatUsd(filters.maxPrice)}
           </span>
         </div>

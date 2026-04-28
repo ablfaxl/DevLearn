@@ -23,7 +23,7 @@ export function MobileBottomNav() {
     ? canAccessContentStudio(role)
       ? ROUTES.ADMIN_COURSES
       : ROUTES.LEARN
-    : ROUTES.ADMIN_LOGIN;
+    : ROUTES.COURSES;
 
   const home = pathname === "/";
   const messages = pathname.startsWith("/messages");
@@ -50,7 +50,10 @@ export function MobileBottomNav() {
             href={ROUTES.MESSAGES}
             className={`flex flex-col items-center gap-1 py-2 text-[10px] font-semibold uppercase tracking-wide ${activeClass(messages)}`}
           >
-            <MessageCircle className={`size-6 ${activeClass(messages)}`} strokeWidth={messages ? 2.25 : 1.75} />
+            <MessageCircle
+              className={`size-6 ${activeClass(messages)}`}
+              strokeWidth={messages ? 2.25 : 1.75}
+            />
             Messages
           </Link>
         </li>
@@ -71,7 +74,10 @@ export function MobileBottomNav() {
             href={ROUTES.LEARN}
             className={`flex flex-col items-center gap-1 py-2 text-[10px] font-semibold uppercase tracking-wide ${activeClass(learn)}`}
           >
-            <Bookmark className={`size-6 ${activeClass(learn)}`} strokeWidth={learn ? 2.25 : 1.75} />
+            <Bookmark
+              className={`size-6 ${activeClass(learn)}`}
+              strokeWidth={learn ? 2.25 : 1.75}
+            />
             Saved
           </Link>
         </li>

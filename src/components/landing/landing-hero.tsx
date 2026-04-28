@@ -56,7 +56,7 @@ export function LandingHero() {
               </Link>
             ) : (
               <Link
-                href={ROUTES.ADMIN_LOGIN}
+                href={ROUTES.LOGIN}
                 className="inline-flex h-12 items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 text-base font-semibold text-white backdrop-blur outline-none ring-offset-2 transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 Start teaching

@@ -28,7 +28,7 @@ export function LandingCta() {
             Get started
           </Link>
           <Link
-            href={ROUTES.ADMIN_LOGIN}
+            href={ROUTES.LOGIN}
             className="inline-flex h-12 items-center rounded-xl border border-white/40 px-8 text-base font-semibold text-white outline-none ring-offset-2 transition hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60"
           >
             Open admin

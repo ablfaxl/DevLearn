@@ -32,9 +32,14 @@ export function HeaderSearch() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      <Button type="submit" variant="primary" className="shrink-0 gap-1.5 px-3" aria-label="Search">
+      <Button
+        isIconOnly
+        type="submit"
+        variant="outline"
+        className="shrink-0 gap-1.5 px-3"
+        aria-label="Search"
+      >
         <Search className="size-4" />
-        <span className="hidden sm:inline">Search</span>
       </Button>
     </form>
   );

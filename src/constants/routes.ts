@@ -13,6 +13,7 @@ export const ROUTES = {
   adminCourse: (id: number | string) => `/admin/courses/${id}`,
   ADMIN_COURSES_NEW: "/admin/courses/new",
   REGISTER: "/register",
+  REGISTER_INSTRUCTOR: "/register/instructor",
   MESSAGES: "/messages",
   NOTIFICATIONS: "/notifications",
   STUDIO: "/studio",

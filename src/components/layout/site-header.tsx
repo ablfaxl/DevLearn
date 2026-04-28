@@ -17,7 +17,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 const baseNav: { href: string; label: string }[] = [
   { href: "/courses", label: "Explore" },
   { href: "/learn", label: "My learning" },
-  { href: "/messages", label: "Messages" },
 ];
 
 const teachNav = { href: "/studio", label: "Teach" };
@@ -44,7 +43,7 @@ function NavLink({
     <Link
       href={href}
       onClick={onNavigate}
-      className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+      className={`rounded-lg px-3 py-2 text-sm font-medium transition text-nowrap ${
         active
           ? "bg-[var(--lms-accent)]/15 text-[var(--lms-accent)]"
           : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
@@ -122,22 +121,16 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="mx-auto hidden min-w-0 max-w-md flex-1 px-4 lg:block">
+        <div className="w-full flex items-center justify-end">
           <HeaderSearch />
-        </div>
-
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link
-            href="/courses"
-            className="hidden h-9 items-center rounded-lg px-3 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white sm:inline-flex"
-          >
-            Catalog
-          </Link>
 
           {signedIn && headerLabel ? (
             <details ref={accountMenuRef} className="relative hidden sm:block">
               <summary className="flex cursor-pointer list-none items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-zinc-100 outline-none ring-offset-2 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-[var(--lms-accent)]/40 [&::-webkit-details-marker]:hidden">
-                <span className="max-w-40 truncate" title={profile ? userDisplayLabel(profile) : undefined}>
+                <span
+                  className="max-w-40 truncate"
+                  title={profile ? userDisplayLabel(profile) : undefined}
+                >
                   {headerLabel}
                 </span>
                 <ChevronDown className="size-4 shrink-0 opacity-60" aria-hidden />
@@ -150,15 +143,17 @@ export function SiteHeader() {
                 >
                   Notifications
                   {(notifications?.unreadCount ?? 0) > 0 ? (
-                    <span className="ms-2 text-[var(--lms-accent)]">({notifications?.unreadCount})</span>
+                    <span className="ms-2 text-[var(--lms-accent)]">
+                      ({notifications?.unreadCount})
+                    </span>
                   ) : null}
                 </Link>
                 <Link
                   href={ROUTES.LEARN}
-                  className="block px-3 py-2 text-sm text-zinc-100 hover:bg-white/[0.06]"
+                  className="block px-3 py-2 text-sm text-nowrap text-zinc-100 hover:bg-white/[0.06]"
                   onClick={() => accountMenuRef.current?.removeAttribute("open")}
                 >
-                  My learning
+                  My Learning
                 </Link>
                 {showStudioLinks ? (
                   <Link
@@ -166,7 +161,7 @@ export function SiteHeader() {
                     className="block px-3 py-2 text-sm text-zinc-100 hover:bg-white/[0.06]"
                     onClick={() => accountMenuRef.current?.removeAttribute("open")}
                   >
-                    Studio
+                    Instructor Studio
                   </Link>
                 ) : null}
                 <button

@@ -1,4 +1,6 @@
+"use client";
 import { Cloud, LayoutGrid, PenTool, TrendingUp } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 
 const CATEGORIES = [
@@ -10,23 +12,29 @@ const CATEGORIES = [
 
 export function LmsCategoryPills() {
   return (
-    <section className="border-b border-white/[0.06] bg-[var(--lms-bg)] py-6">
+    <motion.section className="bg-(--lms-bg) py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Categories</h2>
-        <ul className="mt-4 flex flex-wrap gap-2">
+        <h2 className="text-xl font-bold tracking-tight text-white">Categories</h2>
+        <ul className="mt-4 flex flex-wrap gap-5 flex-row-reverse">
           {CATEGORIES.map(({ label, href, icon: Icon }) => (
-            <li key={label}>
-              <Link
-                href={href}
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-[var(--lms-surface)] px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:border-[var(--lms-accent)]/40 hover:text-white"
-              >
-                <Icon className="size-4 text-[var(--lms-accent)]" aria-hidden />
-                {label}
+            // create motion pill and grid layout with tailwind css
+            <motion.li
+              key={label}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center w-72 h-36 justify-center gap-2 rounded-xl border border-white/8 bg-(--lms-surface) px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:border-(--lms-accent)/40 hover:text-white hover:shadow-lg hover:shadow-black/20 focus-visible:ring-2 focus-visible:ring-(--lms-accent) cursor-pointer"
+            >
+              <Link href={href}>
+                <div className="flex items-center justify-center w-full h-full gap-4">
+                  <Icon className="size-5 text-(--lms-accent)" aria-hidden fill="currentColor" />{" "}
+                  <span className="text-xl font-medium text-zinc-200">{label}</span>
+                </div>
               </Link>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </div>
-    </section>
+    </motion.section>
   );
 }

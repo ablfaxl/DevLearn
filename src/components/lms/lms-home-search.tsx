@@ -7,7 +7,6 @@ import { useCallback, useState } from "react";
 
 export function LmsHomeSearch() {
   const pathname = usePathname();
-  if (pathname !== "/") return null;
 
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -16,6 +15,7 @@ export function LmsHomeSearch() {
     const trimmed = q.trim();
     router.push(trimmed ? `/courses?q=${encodeURIComponent(trimmed)}` : "/courses");
   }, [q, router]);
+  if (pathname !== "/") return null;
 
   return (
     <div className="bg-[var(--lms-bg)] px-4 pb-6 pt-2 sm:px-6 md:hidden">

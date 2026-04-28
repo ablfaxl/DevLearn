@@ -1,4 +1,4 @@
-import { AdminLoginForm } from "./admin-login-form";
+import { AdminLoginForm } from "./login-form";
 
 type PageProps = {
   searchParams: Promise<{ registered?: string }>;

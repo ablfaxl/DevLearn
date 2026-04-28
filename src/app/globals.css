@@ -4,22 +4,103 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
-  /**
-   * Single dark palette for the whole app (no light theme).
-   * Use `bg-(--lms-bg)`, `bg-(--lms-surface)`, `text-(--lms-accent)` in Tailwind v4 where supported,
-   * or `bg-[var(--lms-bg)]` etc.
-   */
-  :root {
-    --lms-bg: #0b0b0b;
-    --lms-surface: #1a1a1a;
-    --lms-surface-elevated: #222222;
-    --lms-accent: #f38e43;
-    --lms-accent-hover: #ff9f57;
-    --lms-border: rgba(255, 255, 255, 0.08);
-    --lms-text: #fafafa;
-    --lms-text-muted: #a1a1aa;
-    --lms-text-subtle: #71717a;
+  :root,
+  .light,
+  .default,
+  [data-theme="light"],
+  [data-theme="default"] {
+    --accent: oklch(74.15% 0.1508 54.23);
+    --accent-foreground: oklch(15% 0.03 54.23);
+    --background: oklch(97.02% 0.0012 54.23);
+    --border: oklch(90% 0.0012 54.23);
+    --danger: oklch(65.32% 0.2334 1.79);
+    --danger-foreground: oklch(99.11% 0 0);
+    --default: oklch(94% 0.0012 54.23);
+    --default-foreground: oklch(21.03% 0.0059 54.23);
+    --field-background: oklch(100% 0.0006 54.23);
+    --field-foreground: oklch(21.03% 0.0012 54.23);
+    --field-placeholder: oklch(55.17% 0.0024 54.23);
+    --focus: oklch(74.15% 0.1508 54.23);
+    --foreground: oklch(21.03% 0.0012 54.23);
+    --muted: oklch(55.17% 0.0024 54.23);
+    --overlay: oklch(100% 0.0004 54.23);
+    --overlay-foreground: oklch(21.03% 0.0012 54.23);
+    --scrollbar: oklch(87.1% 0.0012 54.23);
+    --segment: oklch(100% 0.0012 54.23);
+    --segment-foreground: oklch(21.03% 0.0012 54.23);
+    --separator: oklch(92% 0.0012 54.23);
+    --success: oklch(73.29% 0.194 126.86);
+    --success-foreground: oklch(21.03% 0.0059 126.86);
+    --surface: oklch(100% 0.0006 54.23);
+    --surface-foreground: oklch(21.03% 0.0012 54.23);
+    --surface-secondary: oklch(95.24% 0.001 54.23);
+    --surface-secondary-foreground: oklch(21.03% 0.0012 54.23);
+    --surface-tertiary: oklch(93.73% 0.001 54.23);
+    --surface-tertiary-foreground: oklch(21.03% 0.0012 54.23);
+    --warning: oklch(78.19% 0.1589 48.38);
+    --warning-foreground: oklch(21.03% 0.0059 48.38);
+    --radius: 0.75rem;
+    --field-radius: 0.25rem;
+    --font-sans: var(--font-geist-sans);
+
+    /* Existing LMS aliases for current components */
+    --lms-bg: var(--background);
+    --lms-surface: var(--surface);
+    --lms-surface-elevated: var(--surface-secondary);
+    --lms-accent: var(--accent);
+    --lms-accent-hover: color-mix(in oklch, var(--accent) 86%, white);
+    --lms-border: var(--border);
+    --lms-text: var(--foreground);
+    --lms-text-muted: var(--muted);
+    --lms-text-subtle: color-mix(in oklch, var(--muted) 82%, black);
   }
+
+  .dark,
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --accent: oklch(74.15% 0.1508 54.23);
+    --accent-foreground: oklch(15% 0.03 54.23);
+    --background: oklch(12% 0.0012 54.23);
+    --border: oklch(28% 0.0012 54.23);
+    --danger: oklch(59.4% 0.1972 0.68);
+    --danger-foreground: oklch(99.11% 0 0);
+    --default: oklch(27.4% 0.0012 54.23);
+    --default-foreground: oklch(99.11% 0 0);
+    --field-background: oklch(21.03% 0.0024 54.23);
+    --field-foreground: oklch(99.11% 0.0012 54.23);
+    --field-placeholder: oklch(70.5% 0.0024 54.23);
+    --focus: oklch(74.15% 0.1508 54.23);
+    --foreground: oklch(99.11% 0.0012 54.23);
+    --muted: oklch(70.5% 0.0024 54.23);
+    --overlay: oklch(21.03% 0.0024 54.23);
+    --overlay-foreground: oklch(99.11% 0.0012 54.23);
+    --scrollbar: oklch(70.5% 0.0012 54.23);
+    --segment: oklch(39.64% 0.0012 54.23);
+    --segment-foreground: oklch(99.11% 0.0012 54.23);
+    --separator: oklch(25% 0.0012 54.23);
+    --success: oklch(73.29% 0.194 126.86);
+    --success-foreground: oklch(21.03% 0.0059 126.86);
+    --surface: oklch(21.03% 0.0024 54.23);
+    --surface-foreground: oklch(99.11% 0.0012 54.23);
+    --surface-secondary: oklch(25.7% 0.0018 54.23);
+    --surface-secondary-foreground: oklch(99.11% 0.0012 54.23);
+    --surface-tertiary: oklch(27.21% 0.0018 54.23);
+    --surface-tertiary-foreground: oklch(99.11% 0.0012 54.23);
+    --warning: oklch(82.03% 0.1391 52.39);
+    --warning-foreground: oklch(21.03% 0.0059 52.39);
+
+    /* Existing LMS aliases for current components */
+    --lms-bg: var(--background);
+    --lms-surface: var(--surface);
+    --lms-surface-elevated: var(--surface-secondary);
+    --lms-accent: var(--accent);
+    --lms-accent-hover: color-mix(in oklch, var(--accent) 86%, white);
+    --lms-border: var(--border);
+    --lms-text: var(--foreground);
+    --lms-text-muted: var(--muted);
+    --lms-text-subtle: color-mix(in oklch, var(--muted) 82%, black);
+  }
+
   html {
     scroll-behavior: smooth;
     color-scheme: dark;

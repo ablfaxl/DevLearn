@@ -4,7 +4,7 @@ import { useAdminAuth } from "@/features/auth";
 import { getRoleFromAccessToken } from "@/lib/auth/jwt-payload";
 import { postLoginRedirectPath } from "@/lib/auth/roles";
 import { Button, Input, Label } from "@heroui/react";
-import { Lock, User } from "lucide-react";
+import { ArrowRight, Lock, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +28,8 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
     setPending(true);
     try {
       const prof = await login(username.trim(), password);
-      const token = typeof window !== "undefined" ? window.localStorage.getItem("lms_access_token") : null;
+      const token =
+        typeof window !== "undefined" ? window.localStorage.getItem("lms_access_token") : null;
       const resolvedRole = prof?.role ?? getRoleFromAccessToken(token);
       router.replace(postLoginRedirectPath(resolvedRole));
     } catch (err) {
@@ -50,48 +51,52 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-zinc-200/80 bg-white/95 p-8 shadow-xl shadow-zinc-900/10 ring-1 ring-zinc-950/5 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/95 dark:ring-zinc-800">
           <div className="text-center">
-            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-fuchsia-600 to-violet-700 text-white shadow-lg">
-              <Lock className="size-6" aria-hidden />
-            </span>
-            <h1 className="mt-5 text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Welcome back</h1>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Sign in with your LMS account. Students go to My learning; instructors and admins open the studio.
-            </p>
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Welcome back
+            </h1>
           </div>
 
-          <form onSubmit={onSubmit} className="mt-8 space-y-5">
-            <div className="space-y-1.5">
+          <form onSubmit={onSubmit} className="mt-8 w-full space-y-5">
+            <div className="space-y-1.5 w-full">
               <Label.Root htmlFor="admin-username" className="text-zinc-700">
                 Username
               </Label.Root>
-              <div className="relative">
+              <div className="relative w-full mt-2">
                 <User className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="admin-username"
                   name="username"
+                  type="text"
+                  placeholder="Enter your username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  autoFocus
+                  disabled={pending}
                   autoComplete="username"
+                  onChange={(e) => setUsername(e.target.value)}
+                  variant="secondary"
                   required
-                  className="pl-10"
+                  className="pl-10 w-full"
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 w-full">
               <Label.Root htmlFor="admin-password" className="text-zinc-700">
                 Password
               </Label.Root>
-              <div className="relative">
+              <div className="relative w-full mt-2">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="admin-password"
                   name="password"
                   type="password"
                   value={password}
+                  placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   required
-                  className="pl-10"
+                  variant="secondary"
+                  disabled={pending}
+                  className="pl-10 w-full"
                 />
               </div>
             </div>
@@ -105,23 +110,23 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
                 {error}
               </div>
             ) : null}
-            <Button type="submit" className="mt-2 h-11 w-full font-semibold" isDisabled={pending}>
+            <Button
+              variant="secondary"
+              type="submit"
+              className="mt-2 h-11 w-full font-semibold bg-[var(--lms-accent)] text-white hover:bg-[var(--lms-accent-hover)]  "
+              isDisabled={pending}
+            >
               {pending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             New here?{" "}
-            <Link href="/register" className="font-semibold text-fuchsia-700 hover:underline dark:text-fuchsia-400">
-              Create an account
-            </Link>
-          </p>
-          <p className="mt-4 text-center text-sm text-zinc-500">
             <Link
-              href="/"
-              className="font-medium text-fuchsia-700 hover:text-fuchsia-900 hover:underline dark:text-fuchsia-400"
+              href="/register"
+              className="font-semibold text-nowrap text-[var(--lms-accent)] hover:underline"
             >
-              ← Back to site
+              Create an account
             </Link>
           </p>
         </div>

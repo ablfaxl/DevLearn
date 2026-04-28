@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LMS Client (Next.js 16)
 
-## Getting Started
+Frontend for the LMS platform (catalog, classroom, messaging, notifications, and admin/instructor tools).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS v4
+- HeroUI v3
+- TypeScript
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev         # local dev server
+pnpm build       # production build
+pnpm start       # run production build
+pnpm lint        # eslint
+pnpm lint:fix    # eslint --fix
+pnpm format      # prettier write
+pnpm format:check
+pnpm exec tsc --noEmit
+```
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+This app consumes a Django backend (`/api/v1/...`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Common variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_API_BASE_URL`
+- `API_PROXY_TARGET` (rewrite target for `/api-backend/:path*`)
+- `INTERNAL_API_BASE_URL` (server fallback)
 
-## Deploy on Vercel
+Typical local setup:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Backend: `http://127.0.0.1:8000`
+- Frontend: `http://127.0.0.1:3000`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Auth Routes
+
+- Login: `/admin/login`
+- Student register: `/register`
+- Instructor register: `/register/instructor`
+
+Registration is role-by-route:
+
+- `/register` submits `role: "student"`
+- `/register/instructor` submits `role: "instructor"`
+
+## Theming
+
+- Theme tokens are centralized in `src/app/globals.css`
+- HeroUI semantic variables are active
+- Legacy LMS tokens (`--lms-*`) are mapped to HeroUI tokens for compatibility
+- App is dark-first (`color-scheme: dark`)
+
+## Feature Notes
+
+- Classroom content supports:
+  - text (plain + HTML rendering)
+  - video/audio links from `content` or `file_url`
+  - YouTube/Vimeo embeds
+  - document/PDF preview via iframe
+- Admin overview page is wired to `GET /api/v1/admin/overview/` with platform-admin gating.

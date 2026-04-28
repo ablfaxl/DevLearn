@@ -15,15 +15,57 @@ import type {
   ModuleDetail,
 } from "@/lib/api/types";
 import { isAdminRole } from "@/lib/auth/roles";
-import { Button, Input, Label } from "@heroui/react";
+import { Button, Input, Label, ListBox, Select } from "@heroui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const CONTENT_TYPES: LessonContentType[] = ["text", "video", "audio", "document"];
 
 function sortedContents(contents: Content[]) {
   return [...contents].sort((a, b) => a.order - b.order);
+}
+
+function ContentTypeSelect({
+  value,
+  onChange,
+  ariaLabel,
+  disabled = false,
+}: {
+  value: LessonContentType;
+  onChange: (next: LessonContentType) => void;
+  ariaLabel: string;
+  disabled?: boolean;
+}) {
+  return (
+    <Select
+      className="min-w-40"
+      placeholder="Content type"
+      value={value}
+      onChange={(key) => {
+        if (!key) return;
+        onChange(String(key) as LessonContentType);
+      }}
+      isDisabled={disabled}
+      variant="secondary"
+      aria-label={ariaLabel}
+    >
+      <Select.Trigger className="h-10 w-full rounded-lg border border-(--lms-border) bg-(--lms-surface-elevated) px-2 text-sm text-(--lms-text)">
+        <Select.Value className="text-(--lms-text)" />
+        <Select.Indicator className="text-(--lms-text-muted)" />
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox className="bg-(--lms-surface) text-(--lms-text)">
+          {CONTENT_TYPES.map((t) => (
+            <ListBox.Item key={t} id={t} textValue={t} className="capitalize">
+              {t}
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
+    </Select>
+  );
 }
 
 type CourseEditorProps = {
@@ -42,26 +84,53 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ kind: "success" | "error"; message: string } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [courseTitle, setCourseTitle] = useState("");
   const [courseDescription, setCourseDescription] = useState("");
   const [courseInstructor, setCourseInstructor] = useState("");
   const [savingCourse, setSavingCourse] = useState(false);
 
+  const pushToast = useCallback((kind: "success" | "error", message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ kind, message });
+    toastTimerRef.current = setTimeout(() => {
+      setToast(null);
+      toastTimerRef.current = null;
+    }, 3200);
+  }, []);
+
+  const emitError = useCallback(
+    (message: string | null) => {
+      setError(message);
+      if (message) pushToast("error", message);
+    },
+    [pushToast]
+  );
+
+  const emitInfo = useCallback(
+    (message: string | null) => {
+      setInfo(message);
+      if (message) pushToast("success", message);
+    },
+    [pushToast]
+  );
+
   const refresh = useCallback(async () => {
-    setError(null);
+    emitError(null);
     const c = await getCourse(courseId);
     setCourse(c);
     setCourseTitle(c.title);
     setCourseDescription(c.description);
     setCourseInstructor(String(c.instructor));
-  }, [courseId]);
+  }, [courseId, emitError]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      setError(null);
+      emitError(null);
       try {
         const c = await getCourse(courseId);
         if (cancelled) return;
@@ -71,7 +140,7 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
         setCourseInstructor(String(c.instructor));
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof ApiError ? e.message : "Failed to load course");
+          emitError(e instanceof ApiError ? e.message : "Failed to load course");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -80,15 +149,34 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
     return () => {
       cancelled = true;
     };
-  }, [courseId]);
+  }, [courseId, emitError]);
 
   const modules = useMemo(() => course?.modules ?? [], [course]);
+  const totalLessons = useMemo(
+    () => modules.reduce((acc, mod) => acc + (mod.lessons?.length ?? 0), 0),
+    [modules]
+  );
+  const totalContents = useMemo(
+    () =>
+      modules.reduce(
+        (acc, mod) =>
+          acc +
+          (mod.lessons ?? []).reduce((inner, lesson) => inner + (lesson.contents?.length ?? 0), 0),
+        0
+      ),
+    [modules]
+  );
+  const hasCourseChanges =
+    !!course &&
+    (courseTitle.trim() !== course.title ||
+      courseDescription.trim() !== course.description ||
+      (showInstructorField && courseInstructor.trim() !== String(course.instructor)));
 
   async function saveCourse() {
     if (!course || metaLocked) return;
     setSavingCourse(true);
-    setError(null);
-    setInfo(null);
+    emitError(null);
+    emitInfo(null);
     try {
       const payload: { title: string; description: string; instructor?: number } = {
         title: courseTitle.trim(),
@@ -100,10 +188,10 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
         if (Number.isInteger(n) && n > 0) payload.instructor = n;
       }
       await updateCourse(course.id, payload, "PATCH");
-      setInfo("Course saved.");
+      emitInfo("Course saved.");
       await refresh();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : errMessage(e));
+      emitError(e instanceof ApiError ? e.message : errMessage(e));
     } finally {
       setSavingCourse(false);
     }
@@ -116,20 +204,20 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
       await deleteCourse(course.id);
       router.replace(ROUTES.ADMIN_COURSES);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : errMessage(e));
+      emitError(e instanceof ApiError ? e.message : errMessage(e));
     }
   }
 
   if (loading) {
-    return <p className="text-sm text-gray-600">Loading course…</p>;
+    return <p className="text-sm text-(--lms-text-muted)">Loading course…</p>;
   }
   if (error && !course) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-400">{error}</p>
         <Link
           href={ROUTES.ADMIN_COURSES}
-          className="text-sm font-medium text-fuchsia-700 hover:underline"
+          className="text-sm font-medium text-(--lms-accent) hover:underline"
         >
           ← Back to courses
         </Link>
@@ -144,45 +232,74 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
         <div>
           <Link
             href={ROUTES.ADMIN_COURSES}
-            className="text-sm font-medium text-fuchsia-700 hover:underline"
+            className="text-sm font-medium text-(--lms-accent) hover:underline"
           >
             ← Courses
           </Link>
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Edit: {course.title}</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="mt-2 text-2xl font-bold text-(--lms-text)">Edit: {course.title}</h1>
+          <p className="mt-1 text-sm text-(--lms-text-muted)">
             Instructor: {course.instructor_detail?.username ?? `#${course.instructor}`} · ID{" "}
             {course.id}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full border border-(--lms-border) bg-(--lms-surface-elevated) px-3 py-1 text-(--lms-text-muted)">
+              {modules.length} modules
+            </span>
+            <span className="rounded-full border border-(--lms-border) bg-(--lms-surface-elevated) px-3 py-1 text-(--lms-text-muted)">
+              {totalLessons} lessons
+            </span>
+            <span className="rounded-full border border-(--lms-border) bg-(--lms-surface-elevated) px-3 py-1 text-(--lms-text-muted)">
+              {totalContents} content blocks
+            </span>
+          </div>
         </div>
-        <Button variant="danger" onPress={onDeleteCourse} isDisabled={metaLocked}>
+        <Button
+          variant="danger"
+          className="font-semibold"
+          onPress={onDeleteCourse}
+          isDisabled={metaLocked}
+        >
           Delete course
         </Button>
       </div>
 
       {metaLocked ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          You can view this course, but your role is not allowed to change course details or delete it.
+        <div className="rounded-lg border border-amber-900/40 bg-amber-950/25 px-4 py-3 text-sm text-amber-100/90">
+          You can view this course, but your role is not allowed to change course details or delete
+          it.
         </div>
       ) : null}
       {learningLocked ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          You can view modules and lessons, but your role is not allowed to edit learning content here.
+        <div className="rounded-lg border border-amber-900/40 bg-amber-950/25 px-4 py-3 text-sm text-amber-100/90">
+          You can view modules and lessons, but your role is not allowed to edit learning content
+          here.
         </div>
       ) : null}
 
       {error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       ) : null}
       {info ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-200">
           {info}
         </div>
       ) : null}
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900">Course details</h2>
+      <section className="rounded-xl border border-(--lms-border) bg-(--lms-surface) p-6 shadow-sm ring-1 ring-black/20">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-(--lms-text)">Course details</h2>
+          {hasCourseChanges ? (
+            <span className="rounded-full border border-amber-900/40 bg-amber-950/25 px-2.5 py-1 text-xs font-medium text-amber-100/90">
+              Unsaved changes
+            </span>
+          ) : (
+            <span className="rounded-full border border-emerald-900/40 bg-emerald-950/25 px-2.5 py-1 text-xs font-medium text-emerald-200">
+              Saved
+            </span>
+          )}
+        </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5 md:col-span-2">
             <Label.Root htmlFor="edit-title">Title</Label.Root>
@@ -200,7 +317,7 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
               value={courseDescription}
               onChange={(e) => setCourseDescription(e.target.value)}
               readOnly={metaLocked}
-              className="min-h-28 w-full rounded-lg border border-gray-200 p-3 text-sm outline-none ring-fuchsia-500 focus-visible:ring-2"
+              className="min-h-28 w-full rounded-lg border border-(--lms-border) bg-(--lms-surface-elevated) p-3 text-sm text-(--lms-text) outline-none focus-visible:ring-2 focus-visible:ring-(--lms-accent)/50"
             />
           </div>
           {showInstructorField ? (
@@ -213,14 +330,18 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
                 onChange={(e) => setCourseInstructor(e.target.value)}
                 readOnly={metaLocked}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-(--lms-text-muted)">
                 Admins can reassign. Instructors typically cannot change this.
               </p>
             </div>
           ) : null}
         </div>
         <div className="mt-4">
-          <Button onPress={() => void saveCourse()} isDisabled={metaLocked || savingCourse}>
+          <Button
+            className="bg-(--lms-accent) font-semibold text-[#1a0f08] hover:brightness-110"
+            onPress={() => void saveCourse()}
+            isDisabled={metaLocked || savingCourse || !hasCourseChanges}
+          >
             {savingCourse ? "Saving…" : "Save course"}
           </Button>
         </div>
@@ -228,13 +349,13 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">Modules & lessons</h2>
+          <h2 className="text-lg font-semibold text-(--lms-text)">Modules & lessons</h2>
         </div>
         <NewModuleForm
           courseId={course.id}
           lockLearning={learningLocked}
           onCreated={() => void refresh()}
-          onError={setError}
+          onError={emitError}
         />
         <div className="space-y-6">
           {modules.map((mod) => (
@@ -243,15 +364,29 @@ export function CourseEditor({ courseId }: CourseEditorProps) {
               module={mod}
               lockLearning={learningLocked}
               onRefresh={() => void refresh()}
-              onError={setError}
-              onInfo={setInfo}
+              onError={emitError}
+              onInfo={emitInfo}
             />
           ))}
           {modules.length === 0 ? (
-            <p className="text-sm text-gray-500">No modules yet. Add one above.</p>
+            <p className="text-sm text-(--lms-text-muted)">No modules yet. Add one above.</p>
           ) : null}
         </div>
       </section>
+
+      {toast ? (
+        <div className="pointer-events-none fixed bottom-5 right-5 z-70">
+          <div
+            className={`min-w-[16rem] rounded-xl border px-4 py-3 text-sm shadow-xl backdrop-blur ${
+              toast.kind === "success"
+                ? "border-emerald-900/50 bg-emerald-950/90 text-emerald-100"
+                : "border-red-900/50 bg-red-950/90 text-red-100"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -296,9 +431,9 @@ function NewModuleForm({
   return (
     <form
       onSubmit={(e) => void submit(e)}
-      className="rounded-xl border border-dashed border-gray-300 bg-gray-50/50 p-4"
+      className="rounded-xl border border-dashed border-(--lms-border) bg-(--lms-surface-elevated) p-4"
     >
-      <p className="text-sm font-medium text-gray-800">Add module</p>
+      <p className="text-sm font-medium text-(--lms-text)">Add module</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <Input
           placeholder="Module title"
@@ -374,21 +509,22 @@ function ModuleCard({
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-(--lms-border) bg-(--lms-surface) p-5 shadow-sm ring-1 ring-black/20">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h3 className="text-base font-semibold text-gray-900">Module {module.id}</h3>
-        <Button size="sm" variant="danger" isDisabled={lockLearning} onPress={() => void removeModule()}>
+        <h3 className="text-base font-semibold text-(--lms-text)">Module {module.id}</h3>
+        <Button
+          size="sm"
+          variant="danger"
+          isDisabled={lockLearning || saving}
+          onPress={() => void removeModule()}
+        >
           Delete module
         </Button>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label.Root>Title</Label.Root>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            readOnly={lockLearning}
-          />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} readOnly={lockLearning} />
         </div>
         <div className="space-y-1.5 md:col-span-2">
           <Label.Root>Description</Label.Root>
@@ -396,12 +532,12 @@ function ModuleCard({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             readOnly={lockLearning}
-            className="min-h-20 w-full rounded-lg border border-gray-200 p-2 text-sm outline-none ring-fuchsia-500 focus-visible:ring-2"
+            className="min-h-20 w-full rounded-lg border border-(--lms-border) bg-(--lms-surface-elevated) p-2 text-sm text-(--lms-text) outline-none focus-visible:ring-2 focus-visible:ring-(--lms-accent)/50"
           />
         </div>
       </div>
       <Button
-        className="mt-2"
+        className="mt-2 border-(--lms-border) bg-(--lms-surface-elevated) text-(--lms-text)"
         size="sm"
         variant="outline"
         isDisabled={lockLearning || saving}
@@ -410,8 +546,8 @@ function ModuleCard({
         {saving ? "Saving…" : "Save module"}
       </Button>
 
-      <div className="mt-6 border-t border-gray-100 pt-4">
-        <h4 className="text-sm font-semibold text-gray-800">Lessons</h4>
+      <div className="mt-6 border-t border-(--lms-border) pt-4">
+        <h4 className="text-sm font-semibold text-(--lms-text)">Lessons</h4>
         <NewLessonForm
           moduleId={module.id}
           lockLearning={lockLearning}
@@ -430,7 +566,7 @@ function ModuleCard({
             />
           ))}
           {(module.lessons ?? []).length === 0 ? (
-            <li className="text-sm text-gray-500">No lessons in this module.</li>
+            <li className="text-sm text-(--lms-text-muted)">No lessons in this module.</li>
           ) : null}
         </ul>
       </div>
@@ -474,25 +610,23 @@ function NewLessonForm({
   return (
     <form onSubmit={(e) => void submit(e)} className="mt-3 flex flex-wrap items-end gap-2">
       <Input
-        className="min-w-[12rem] flex-1"
+        className="min-w-48 flex-1"
         placeholder="Lesson title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
       />
-      <select
-        className="h-10 rounded-lg border border-gray-200 bg-white px-2 text-sm"
+      <ContentTypeSelect
         value={contentType}
-        onChange={(e) => setContentType(e.target.value as LessonContentType)}
-        aria-label="Lesson content type"
+        onChange={setContentType}
+        ariaLabel="Lesson content type"
+      />
+      <Button
+        type="submit"
+        size="sm"
+        className="bg-(--lms-accent) font-semibold text-[#1a0f08] hover:brightness-110"
+        isDisabled={pending}
       >
-        {CONTENT_TYPES.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
-      <Button type="submit" size="sm" isDisabled={pending}>
         {pending ? "Adding…" : "Add lesson"}
       </Button>
     </form>
@@ -551,36 +685,35 @@ function LessonCard({
   const contents = sortedContents(lesson.contents ?? []);
 
   return (
-    <li className="rounded-lg border border-gray-100 bg-gray-50/60 p-4">
+    <li className="rounded-lg border border-(--lms-border) bg-(--lms-surface-elevated) p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <span className="text-xs font-medium text-gray-500">Lesson {lesson.id}</span>
-        <Button size="sm" variant="danger" isDisabled={lockLearning} onPress={() => void removeLesson()}>
+        <span className="text-xs font-medium text-(--lms-text-muted)">Lesson {lesson.id}</span>
+        <Button
+          size="sm"
+          variant="danger"
+          isDisabled={lockLearning || saving}
+          onPress={() => void removeLesson()}
+        >
           Delete
         </Button>
       </div>
       <div className="mt-2 flex flex-wrap items-end gap-2">
         <Input
-          className="min-w-[10rem] flex-1"
+          className="min-w-40 flex-1"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           readOnly={lockLearning}
         />
-        <select
-          className="h-10 rounded-lg border border-gray-200 bg-white px-2 text-sm disabled:opacity-60"
+        <ContentTypeSelect
           value={contentType}
-          onChange={(e) => setContentType(e.target.value as LessonContentType)}
+          onChange={setContentType}
+          ariaLabel="Content type"
           disabled={lockLearning}
-          aria-label="Content type"
-        >
-          {CONTENT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        />
         <Button
           size="sm"
           variant="outline"
+          className="border-(--lms-border) bg-(--lms-surface) text-(--lms-text)"
           isDisabled={lockLearning || saving}
           onPress={() => void saveLesson()}
         >
@@ -589,16 +722,18 @@ function LessonCard({
       </div>
 
       <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Contents</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-(--lms-text-muted)">
+          Contents
+        </p>
         <ul className="mt-2 space-y-2">
           {contents.map((c) => (
             <li
               key={c.id}
-              className="flex flex-wrap items-start justify-between gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+              className="flex flex-wrap items-start justify-between gap-2 rounded-md border border-(--lms-border) bg-(--lms-surface) px-3 py-2 text-sm"
             >
               <div>
-                <span className="font-medium text-gray-900">{c.title}</span>
-                <span className="ml-2 text-xs text-gray-500">
+                <span className="font-medium text-(--lms-text)">{c.title}</span>
+                <span className="ml-2 text-xs text-(--lms-text-muted)">
                   {c.content_type} · order {c.order}
                 </span>
                 {c.file_url ? (
@@ -606,13 +741,13 @@ function LessonCard({
                     href={c.file_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="ml-2 text-xs text-fuchsia-700 underline"
+                    className="ml-2 text-xs text-(--lms-accent) underline"
                   >
                     file
                   </a>
                 ) : null}
                 {c.content ? (
-                  <p className="mt-1 line-clamp-2 text-xs text-gray-600">{c.content}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-(--lms-text-muted)">{c.content}</p>
                 ) : null}
               </div>
               <Button
@@ -734,9 +869,9 @@ function NewContentForm({
   return (
     <form
       onSubmit={(e) => void submit(e)}
-      className="mt-3 space-y-2 rounded-lg border border-dashed border-gray-200 p-3"
+      className="mt-3 space-y-2 rounded-lg border border-dashed border-(--lms-border) bg-(--lms-surface-elevated) p-3"
     >
-      <p className="text-xs font-medium text-gray-700">Add content block</p>
+      <p className="text-xs font-medium text-(--lms-text)">Add content block</p>
       <div className="flex flex-wrap gap-2">
         <Input
           placeholder="Title"
@@ -744,18 +879,7 @@ function NewContentForm({
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <select
-          className="h-10 rounded-lg border border-gray-200 bg-white px-2 text-sm"
-          value={contentType}
-          onChange={(e) => setContentType(e.target.value as LessonContentType)}
-          aria-label="Block type"
-        >
-          {CONTENT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <ContentTypeSelect value={contentType} onChange={setContentType} ariaLabel="Block type" />
         <Input
           className="w-24"
           inputMode="numeric"
@@ -772,19 +896,24 @@ function NewContentForm({
         }
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="min-h-20 w-full rounded-lg border border-gray-200 p-2 text-sm outline-none ring-fuchsia-500 focus-visible:ring-2"
+        className="min-h-20 w-full rounded-lg border border-(--lms-border) bg-(--lms-surface) p-2 text-sm text-(--lms-text) outline-none focus-visible:ring-2 focus-visible:ring-(--lms-accent)/50"
       />
       {contentType !== "text" ? (
         <div>
           <Label.Root className="text-xs">File (optional if URL set)</Label.Root>
           <input
             type="file"
-            className="mt-1 block w-full text-sm text-gray-600"
+            className="mt-1 block w-full text-sm text-(--lms-text-muted)"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>
       ) : null}
-      <Button type="submit" size="sm" isDisabled={pending}>
+      <Button
+        type="submit"
+        size="sm"
+        className="bg-(--lms-accent) font-semibold text-[#1a0f08] hover:brightness-110"
+        isDisabled={pending}
+      >
         {pending ? "Creating…" : "Add content"}
       </Button>
     </form>

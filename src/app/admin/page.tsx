@@ -19,9 +19,9 @@ export default function AdminIndexPage() {
   }, [bootstrapped, profile, role, router]);
 
   return (
-    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm text-zinc-500">
+    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm text-(--lms-text-muted)">
       <div
-        className="size-8 animate-spin rounded-full border-2 border-zinc-700 border-t-[var(--lms-accent)]"
+        className="size-8 animate-spin rounded-full border-2 border-(--lms-border)/80 border-t-(--lms-accent)"
         aria-hidden
       />
       Opening studio…

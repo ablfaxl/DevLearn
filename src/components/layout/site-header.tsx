@@ -19,8 +19,6 @@ const baseNav: { href: string; label: string }[] = [
   { href: "/learn", label: "My learning" },
 ];
 
-const teachNav = { href: "/studio", label: "Teach" };
-
 function navActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   if (href === "/learn") return pathname.startsWith("/learn");
@@ -62,7 +60,6 @@ export function SiteHeader() {
 
   const navItems = useMemo(() => {
     const items = [...baseNav];
-    if (canAccessContentStudio(role)) items.push(teachNav);
     return items;
   }, [role]);
 

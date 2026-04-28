@@ -1,17 +1,14 @@
 "use client";
 
 import { useAdminAuth } from "@/features/auth";
-import { getRoleFromAccessToken } from "@/lib/auth/jwt-payload";
-import { postLoginRedirectPath } from "@/lib/auth/roles";
+import { ROUTES } from "@/constants";
 import { Button, Input, Label } from "@heroui/react";
-import { ArrowRight, Lock, User } from "lucide-react";
+import { Lock, User } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean }) {
-  const router = useRouter();
-  const { login, accessToken, bootstrapped, role } = useAdminAuth();
+  const { login, accessToken, bootstrapped } = useAdminAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -19,19 +16,16 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
 
   useEffect(() => {
     if (!bootstrapped || !accessToken) return;
-    router.replace(postLoginRedirectPath(role));
-  }, [accessToken, bootstrapped, role, router]);
+    window.location.assign(ROUTES.HOME);
+  }, [accessToken, bootstrapped]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setPending(true);
     try {
-      const prof = await login(username.trim(), password);
-      const token =
-        typeof window !== "undefined" ? window.localStorage.getItem("lms_access_token") : null;
-      const resolvedRole = prof?.role ?? getRoleFromAccessToken(token);
-      router.replace(postLoginRedirectPath(resolvedRole));
+      await login(username.trim(), password);
+      window.location.assign(ROUTES.HOME);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -113,7 +107,7 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
             <Button
               variant="secondary"
               type="submit"
-              className="mt-2 h-11 w-full font-semibold bg-[var(--lms-accent)] text-white hover:bg-[var(--lms-accent-hover)]  "
+              className="mt-2 h-11 w-full font-semibold bg-(--lms-accent) text-white hover:bg-(--lms-accent-hover)  "
               isDisabled={pending}
             >
               {pending ? "Signing in…" : "Sign in"}
@@ -124,7 +118,7 @@ export function AdminLoginForm({ showRegistered }: { showRegistered?: boolean })
             New here?{" "}
             <Link
               href="/register"
-              className="font-semibold text-nowrap text-[var(--lms-accent)] hover:underline"
+              className="font-semibold text-nowrap text-(--lms-accent) hover:underline"
             >
               Create an account
             </Link>

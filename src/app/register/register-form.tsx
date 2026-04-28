@@ -1,13 +1,14 @@
 "use client";
 
 import { ROUTES } from "@/constants";
+import { useAdminAuth } from "@/features/auth";
 import { registerUser } from "@/lib/api/auth";
 import { errMessage } from "@/lib/api/client";
 import { Button, Input, Label } from "@heroui/react";
 import { Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type RegisterRole = "student" | "instructor";
 
@@ -19,11 +20,17 @@ type RegisterFormProps = {
 
 export function RegisterForm({ role, heading, subtitle }: RegisterFormProps) {
   const router = useRouter();
+  const { accessToken, bootstrapped } = useAdminAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (!bootstrapped || !accessToken) return;
+    window.location.assign(ROUTES.HOME);
+  }, [accessToken, bootstrapped]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
